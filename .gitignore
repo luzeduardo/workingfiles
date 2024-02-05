@@ -2,3 +2,4 @@ wc
 interacting/todo/todo
 workingFiles/mdp/mdp
 .idea/
+mdp/*.md.html

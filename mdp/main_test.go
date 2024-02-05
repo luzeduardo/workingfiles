@@ -3,12 +3,12 @@ package main
 import (
 	"bytes"
 	"os"
+	"strings"
 	"testing"
 )
 
 const (
 	inputFile  = "./testdata/test1.md"
-	resultFile = "test1.md.html"
 	goldenFile = "./testdata/test1.md.html"
 )
 
@@ -27,4 +27,26 @@ func TestParseContent(t *testing.T) {
 		t.Logf("result: \n%s\n", result)
 		t.Error("Result content does not match golden file")
 	}
+}
+
+func TestRun(t *testing.T) {
+	var mockStdOut bytes.Buffer
+	if err := run(inputFile, &mockStdOut); err != nil {
+		t.Fatal(err)
+	}
+	resultFile := strings.TrimSpace(mockStdOut.String())
+	result, err := os.ReadFile(resultFile)
+	if err != nil {
+		t.Fatal(err)
+	}
+	expected, err := os.ReadFile(goldenFile)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !bytes.Equal(expected, result) {
+		t.Logf("Expected: \n%s\n", expected)
+		t.Logf("Result: \n%s\n", result)
+		t.Logf("Rsult does not match golden file")
+	}
+	os.Remove(resultFile)
 }
