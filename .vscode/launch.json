@@ -5,12 +5,18 @@
   "version": "0.2.0",
   "configurations": [
       {
-        "name": "Launch TODO CMD",
+        "name": "Launch workingfiles CMD",
         "type": "go",
         "request": "launch",
         "mode": "auto",
         "cwd": "${workspaceRoot}",
-        "program": "./interacting/todo/cmd/todo",
+        "program": "./mdp/",
+        "args": [
+          "-file",
+          "./mdp/README.md",
+          "-t",
+          "./mdp/template-fmt.html.tmpl"
+        ],
         "env": {},
         "showLog": true
       },
