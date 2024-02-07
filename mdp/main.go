@@ -82,6 +82,17 @@ func run(filename string, tFname string, out io.Writer, skipPreview bool) error 
 	return preview(outName)
 }
 
+func checkConfigurableTemplate(t template.Template, tFname string) (*template.Template, error) {
+	if tFname != "" {
+		t, err := template.ParseFiles(tFname)
+		if err != nil {
+			return nil, err
+		}
+		return t, nil
+	}
+	return nil, nil
+}
+
 func parseContent(input []byte, tFname string) ([]byte, error) {
 	output := blackfriday.Run(input)
 	body := bluemonday.UGCPolicy().SanitizeBytes(output)
@@ -91,11 +102,9 @@ func parseContent(input []byte, tFname string) ([]byte, error) {
 		return nil, err
 	}
 
-	if tFname != "" {
-		_, err := template.ParseFiles(tFname)
-		if err != nil {
-			return nil, err
-		}
+	t, err = checkConfigurableTemplate(*t, tFname)
+	if err != nil {
+		return nil, err
 	}
 
 	c := content{
