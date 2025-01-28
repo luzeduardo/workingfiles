@@ -6,9 +6,12 @@ import (
 	"fmt"
 	"html/template"
 	"io"
+	"log"
 	"os"
 	"os/exec"
 	"runtime"
+	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/microcosm-cc/bluemonday"
@@ -35,6 +38,45 @@ const (
 )
 
 func main() {
+	times := 0
+	for {
+		times++
+		counter := PackItems(0)
+		if counter != 2000 {
+			log.Fatalf("it should be 2000 but found %d on execution %d", counter, times)
+		}
+	}
+}
+
+// func mainPackItems() {
+// 	fmt.Println("Total items packed: ", PackItems(0))
+// }
+
+func PackItems(totalItems int32) int32 {
+	const workers = 2
+	const itemsPerWorker = 1000
+
+	var wg sync.WaitGroup
+	itemsPacked := 0
+	for i := 0; i < workers; i++ {
+		wg.Add(1)
+		go func(workerID int) {
+			defer wg.Done()
+			for j := 0; j < itemsPerWorker; j++ {
+				// simulate packing an item
+				//atomic structures are awesome when we need to sync access to a single operation
+				//for group of operations its better to use sync.Mutex
+				atomic.AddInt32(&totalItems, int32(itemsPacked))
+				//update total items packed without proper sync
+				// totalItems = itemsPacked
+			}
+		}(i)
+	}
+	wg.Wait()
+	return totalItems
+}
+
+func main2() {
 	filename := flag.String("file", "", "Markdown file to preview")
 	skipPreview := flag.Bool("s", false, "Skip preview")
 	tFname := flag.String("t", "", "Alternate template name")
